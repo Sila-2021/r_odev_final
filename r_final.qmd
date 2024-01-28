@@ -1,0 +1,140 @@
+---
+title: "R_Final"
+author: "Sıla Bağlan"
+format: html
+editor: visual
+---
+
+## Final Odevi
+
+## Veri Seti
+
+Veri setini yükleyelim:
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(Amelia)
+library(naniar)
+library(VIM)
+library(magrittr)
+library(dplyr)
+
+```
+
+```{r}
+
+veri <- read_excel("C:/Users/silak/Downloads/1-vdym-ilce-baznda-hanelerdeki-duygu-durum-istatistikleri.xlsx")
+
+
+```
+
+### Verinin yapısı ve içeriği
+
+```{r}
+str(veri)
+```
+
+### Verinin özeti
+
+```{r}
+summary(veri)
+
+```
+
+```{r}
+barplot(t(veri[, -1]), beside = TRUE, legend.text = rownames(veri), col = rainbow(ncol(veri) - 1))
+```
+
+### Doğrusal regresyon analizi
+
+```{r}
+# Değişken adlarındaki boşlukları alt çizgi ile değiştirme
+names(veri) <- gsub(" ", "_", names(veri))
+
+# Lineer regresyon modeli
+model <- lm(Mutluluk_Çok_Fazla ~ Kaygı_Çok_Az + Kaygı_Az + Kaygı_Ne_Fazla_Ne_Az + Kaygı_Fazla + Kaygı_Çok_Fazla, data=veri)
+
+# Model özetini görüntüle
+summary(model)
+
+
+
+```
+
+```{}
+```
+
+## Kayıp Veri
+
+### Kayıp veri kontrolü
+
+```{r}
+sum(is.na(veri))
+
+```
+
+### Kayıp veri oluşturma
+
+```{r}
+
+set.seed(123)
+
+satir_sayisi <- nrow(veri)
+
+eklenecek_NA_degeri <- round(satir_sayisi * 0.1)  
+
+NA_iceren_satir<- sample(1:satir_sayisi, eklenecek_NA_degeri, replace = TRUE)
+
+NA_iceren_sutun <- sample(1:ncol(veri), eklenecek_NA_degeri, replace = TRUE)
+
+veri[NA_iceren_satir, NA_iceren_sutun] <- NA
+
+```
+
+### Kayıp veri kontrolü
+
+```{r}
+sum(is.na(veri))
+
+```
+
+### Verinin yapısı ve içeriği
+
+```{r}
+str(veri)
+
+```
+
+### Kayıp veri görseleştirme
+
+```{r}
+library(naniar)
+
+data("veri")
+naniar::vis_miss(veri)
+naniar::gg_miss_var(veri)
+```
+
+### Kayıp veri doldurma
+
+```{r}
+set.seed(123)
+veri[NA_iceren_satir, NA_iceren_sutun] <- runif(length(NA_iceren_satir * NA_iceren_sutun))
+
+```
+
+### Kayıp veri kontrolü
+
+```{r}
+sum(is.na(veri))
+```
+
+### Kayıp verileri görseleştirme
+
+```{r}
+# Eksik değerleri görselleştir
+library(naniar)
+naniar::vis_miss(veri)
+ 
+```
